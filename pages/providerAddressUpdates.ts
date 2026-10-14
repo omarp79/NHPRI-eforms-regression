@@ -1,0 +1,34 @@
+import { Locator, Page } from '@playwright/test';
+import { EnvManager } from '../utils/env';
+import * as SharedForm from '../utils/SharedFormActions';
+
+export class providerAddressUpdates {
+  private readonly page: Page;
+  public readonly sharedFormActions: SharedForm.SharedFormActions;
+  public readonly formRoot: Locator;
+
+  constructor(page: Page) {
+    this.page = page;
+    this.formRoot = this.page.locator('form#pcp-address-updates, .form-container-class');
+    this.sharedFormActions = new SharedForm.SharedFormActions(this.formRoot);
+  }
+  private getURL(envTarget: string): string {
+    const cleanEnv = envTarget.toLowerCase().trim();
+    const baseURL = EnvManager.setEnv(cleanEnv);
+    return `${baseURL}providers/address-updates`;
+  }
+  async navigateToProviderAddressUpdates(envTarget: string): Promise<void> {
+    const targetURL = this.getURL(envTarget);
+    console.log(`Testing: ${targetURL}`);
+    await this.page.goto(targetURL);
+    await this.page.waitForLoadState('load');
+  }
+  async fillProviderSection(data?: SharedForm.ProviderData): Promise<void> {
+    await this.sharedFormActions.fillProviderInfo(data);
+  }
+  async fillContactSection(data: SharedForm.MemberData = {}): Promise<void> {
+    await this.sharedFormActions.fillContactInfo({
+      changePCPforAntotherMember: 'Yes', ...data
+    });
+  }
+}

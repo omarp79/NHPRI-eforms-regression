@@ -1,0 +1,23 @@
+{
+  "name": "nhpri-eforms-regression",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omarp79/NHPRI-memberportal-regression.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/omarp79/NHPRI-memberportal-regression/issues"
+  },
+  "homepage": "https://github.com/omarp79/NHPRI-memberportal-regression#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.3"
+  }
+}
