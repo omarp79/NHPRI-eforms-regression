@@ -165,6 +165,7 @@ async fillContactInfo(data: MemberData = {}): Promise<void> {
   // 1. Loop through all the boring, predictable text fields first
   const standardFields = [
     { value: data.email, locator: this.emailInput, label: 'Email' },
+    
     { value: data.commercialMemberId, locator: this.commercialMemberIdInput, label: 'Commercial Member ID' },
     { value: data.dob, locator: this.validationDobInput, label: 'Validation DOB' },
     { value: data.memberName, locator: this.detailMemberNameInput, label: 'Detail Member Name' },
