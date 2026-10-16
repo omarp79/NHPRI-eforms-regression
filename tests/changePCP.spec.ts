@@ -5,7 +5,7 @@ import { sharedAssertions } from '../pages/assertions';
 import { assertionTexts } from '../utils/assertionTexts';
 
 test.describe('Change PCP Regression testsuite', () => {
-  const envTarget = 'qa';
+  const envTarget = 'staging';
   const providerNotFoundtxt = assertionTexts.global.validationErrors.providerNotFound;
   const memberNotFoundtxt = assertionTexts.global.validationErrors.memberNotFound;
 
