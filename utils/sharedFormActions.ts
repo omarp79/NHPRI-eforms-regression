@@ -1,13 +1,14 @@
 import { Locator } from '@playwright/test';
 
- const todaysDate = new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' })
+const todaysDate = new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
 export interface ProviderData {
   npi?: string;
   supplierId?: string;
   providerName?: string;
   addressLocation?: string;
   groupEntityNPI?: string;
-  mailingCorrespondenceAddressUpdate?: string;
+  mailingCorrespondenceAddressUpdate?: string | boolean;
   email?: string;
 }
 
@@ -20,7 +21,7 @@ export interface MemberData {
   planName?: string;
   dateOfService?: string;
   memberDOB?: string;
-  changePCPforAntotherMember?: string;
+  changePCPforAntotherMember?: string | boolean;
 }
 
 export interface SharedFormData {
@@ -65,16 +66,13 @@ export class SharedFormActions {
     this.validationMemberIdInput = this.container.page().locator('input[name="input_14"], input[name*="member_id"]');
     this.validationDobInput = this.container.page().locator('input[name="input_15"], input[name*="dob"]');
     this.providerNameInput = this.container.page().locator('input[name="input_17"], input[name*="provider_name"]');
-    this.addressDropdown = this.container.page().locator('select[name="input_18"], select[name*="address"]');
-    this.detailMemberNameInput = this.container.page().locator('input[name="input_22"], input[name*="member_name"]');
-    this.detailPlanNameInput = this.container.page().locator('input[name="input_23"], input[name*="plan_name"]');
-    this.detailDateOfServiceInput = this.container.page().locator('input[name="input_24"], input[name*="date_of_service"], input[name*="dos"]');
-    this.changePCPforAntotherMember = this.container.page().locator('input[name="input_70"][value="No"]');
+    this.addressDropdown = this.container.page().locator('select[name="input_18"], select[name*="address"], select[name="input_19"]');
+    this.detailMemberNameInput = this.container.page().locator('input[name="input_22"], input[name*="member_name"], input[name="input_27"]');
+    this.detailPlanNameInput = this.container.page().locator('input[name="input_23"], input[name*="plan_name"], input[name="input_30"]');
+    this.detailDateOfServiceInput = this.container.page().locator('input[name="input_24"], input[name*="date_of_service"], input[name*="dos"], input[name="input_61"]');
+    this.changePCPforAntotherMember = this.container.page().locator('input[name="input_70"]');
     this.groupEntityNPIInput = this.container.page().locator('input[name="input_5"], input[name*="group_entity_npi"]');
-// OR
-this.mailingCorrespondenceAddressUpdate = this.container.page().getByRole('checkbox', { name: 'Mailing/Correspondence Address Update' });
- 
- 
+    this.mailingCorrespondenceAddressUpdate = this.container.page().locator('input[name="input_1.1"], checkbox[name*="Mailing"]');
   }
 
   /**
@@ -98,6 +96,7 @@ this.mailingCorrespondenceAddressUpdate = this.container.page().getByRole('check
     if (!value) return false;
     try {
       await locator.waitFor({ state: 'visible', timeout: 500 });
+      await locator.scrollIntoViewIfNeeded();
       await locator.check({ force: true });
       return true;
     } catch (error) {
@@ -120,7 +119,6 @@ this.mailingCorrespondenceAddressUpdate = this.container.page().getByRole('check
 
   async fillForm(data?: SharedFormData): Promise<void> {
     if (!data) return;
-    
     try {
       await this.container.waitFor({ state: 'attached', timeout: 4000 });
     } catch {
@@ -131,78 +129,70 @@ this.mailingCorrespondenceAddressUpdate = this.container.page().getByRole('check
     if (data.member) await this.fillContactInfo(data.member);
   }
 
-async fillProviderInfo(data: ProviderData = {}): Promise<void> {
-  //Loop for standard, repetitive inputs)
-  const fields = [
-    { value: data.supplierId, locator: this.supplierIdInput, label: 'Supplier ID' },
-    { value: data.providerName, locator: this.providerNameInput, label: 'Provider Name' },
-    { value: data.groupEntityNPI, locator: this.groupEntityNPIInput, label: 'Group Entity NPI' },
-    { value: data.email, locator: this.emailInput, label: 'Email' }
+  async fillProviderInfo(data: ProviderData = {}): Promise<void> {
+    // 1. Loop through baseline, predictable provider data strings
+    const fields = [
+      { value: data.supplierId, locator: this.supplierIdInput, label: 'Supplier ID' },
+      { value: data.providerName, locator: this.providerNameInput, label: 'Provider Name' },
+      { value: data.groupEntityNPI, locator: this.groupEntityNPIInput, label: 'Group Entity NPI' },
+      { value: data.email, locator: this.emailInput, label: 'Email' }
+    ];
 
-  ];
-  for (const field of fields) {
-    if (field.value !== undefined && field.value !== null) {
-      await this.fillDynamicField(field.locator, field.label, field.value);
+    for (const field of fields) {
+      if (field.value !== undefined && field.value !== null) {
+        await this.fillDynamicField(field.locator, field.label, field.value);
+      }
     }
-  }
 
     if (data.npi) {
       const filled = await this.fillDynamicField(this.npiInput, 'NPI', data.npi);
       if (filled) await this.container.page().keyboard.press('Tab');
 
-  if (data.addressLocation) {
-    await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
-  }
+      if (data.addressLocation) {
+        await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
+      }
 
-  if (data.mailingCorrespondenceAddressUpdate) {
-    await this.mailingCorrespondenceAddressUpdate.click();
-  }
-
+      if (data.mailingCorrespondenceAddressUpdate) {
+        await this.clickDynamicField(this.mailingCorrespondenceAddressUpdate, 'Mailing Address Update', data.mailingCorrespondenceAddressUpdate);
+      }
     }
   }
 
-async fillContactInfo(data: MemberData = {}): Promise<void> {
-  // 1. Loop through all the boring, predictable text fields first
-  const standardFields = [
-    { value: data.email, locator: this.emailInput, label: 'Email' },
-    
-    { value: data.commercialMemberId, locator: this.commercialMemberIdInput, label: 'Commercial Member ID' },
-    { value: data.dob, locator: this.validationDobInput, label: 'Validation DOB' },
-    { value: data.memberName, locator: this.detailMemberNameInput, label: 'Detail Member Name' },
-    { value: data.planName, locator: this.detailPlanNameInput, label: 'Plan Name' },
-    { value: data.dateOfService, locator: this.detailDateOfServiceInput, label: 'Date of Service' }
+  async fillContactInfo(data: MemberData = {}): Promise<void> {
+    // 1. Loop through all standard text blocks first
+    const standardFields = [
+      { value: data.email, locator: this.emailInput, label: 'Email' },
+      { value: data.commercialMemberId, locator: this.commercialMemberIdInput, label: 'Commercial Member ID' },
+      { value: data.dob, locator: this.validationDobInput, label: 'Validation DOB' },
+      { value: data.memberName, locator: this.detailMemberNameInput, label: 'Detail Member Name' },
+      { value: data.planName, locator: this.detailPlanNameInput, label: 'Plan Name' },
+      { value: data.dateOfService, locator: this.detailDateOfServiceInput, label: 'Date of Service' }
+    ];
 
-  ];
-  for (const field of standardFields) {
-    if (field.value) {
-      await this.fillDynamicField(field.locator, field.label, field.value);
+    for (const field of standardFields) {
+      if (field.value) {
+        await this.fillDynamicField(field.locator, field.label, field.value);
+      }
     }
 
-  }
-
-  if (data.memberId) {
-
-    let filled = await this.fillDynamicField(this.memberIdInput, 'Main Member ID', data.memberId);
-    if (!filled) {
-      filled = await this.fillDynamicField(this.validationMemberIdInput, 'Validation Variant Member ID', data.memberId);
+    if (data.memberId) {
+      let filled = await this.fillDynamicField(this.memberIdInput, 'Main Member ID', data.memberId);
+      if (!filled) {
+        filled = await this.fillDynamicField(this.validationMemberIdInput, 'Validation Variant Member ID', data.memberId);
+      }
+      if (filled) await this.container.page().keyboard.press('Tab');
     }
 
-    if (filled) await this.container.page().keyboard.press('Tab');
+    if (data.memberDOB) {
+      const filled = await this.fillDynamicField(this.memberDOB, 'Date of Birth Field', data.memberDOB);
+      if (filled) {
+        try { await this.memberDOB.click(); } catch { }
+        await this.container.page().keyboard.press('Tab');
+      }
+    }
 
-  }
-
-  if (data.memberDOB) {
-    const filled = await this.fillDynamicField(this.memberDOB, 'Date of Birth Field', data.memberDOB);
-    if (filled) {
-      try { await this.memberDOB.click(); } catch { }
-      await this.container.page().keyboard.press('Tab');
-
+    if (data.changePCPforAntotherMember) {
+      await this.clickDynamicField(this.changePCPforAntotherMember, 'Change PCP for Another Member', data.changePCPforAntotherMember);
     }
   }
-
-  if (data.changePCPforAntotherMember) {
-    await this.clickDynamicField(this.changePCPforAntotherMember, 'Change PCP for Another Member', data.changePCPforAntotherMember);
-
-  }
-}
 }
