@@ -3,7 +3,6 @@ import { ChangePCP } from '../pages/changePCP';
 import testData from '../testdata/testdata.json';
 import { sharedAssertions } from '../pages/assertions';
 import { assertionTexts } from '../utils/assertionTexts';
-import { setTimeout } from 'node:timers/promises';
 
 test.describe('Change PCP Regression testsuite', () => {
   const envTarget = 'qa';
