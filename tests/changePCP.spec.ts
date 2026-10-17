@@ -5,7 +5,7 @@ import { sharedAssertions } from '../pages/assertions';
 import { assertionTexts } from '../utils/assertionTexts';
 
 test.describe('Change PCP Regression testsuite', () => {
-  const envTarget = 'staging';
+  const envTarget = 'qa';
   const providerNotFoundtxt = assertionTexts.global.validationErrors.providerNotFound;
   const memberNotFoundtxt = assertionTexts.global.validationErrors.memberNotFound;
 
@@ -19,6 +19,9 @@ test.describe('Change PCP Regression testsuite', () => {
     formAssert = new sharedAssertions(page, pcpChange.sharedFormActions);
     providerNotFoundLbl = pcpChange.sharedFormActions.providerNotFound;
     memberNotFoundLbl = pcpChange.sharedFormActions.memberNotFound;
+  });
+  test.afterEach(async ({ page }) => {
+    console.log(`Finished test: ${test.info().title}`);
   });
 
   test.skip('Submit a Change PCP form.', async ({ page }) => {

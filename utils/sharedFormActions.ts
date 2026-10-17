@@ -144,18 +144,23 @@ export class SharedFormActions {
       }
     }
 
-    if (data.npi) {
-      const filled = await this.fillDynamicField(this.npiInput, 'NPI', data.npi);
-      if (filled) await this.container.page().keyboard.press('Tab');
-
+if (data.npi) {
+  await this.npiInput.clear();
+  await this.npiInput.pressSequentially(data.npi, { delay: 100 });
+    await this.container.page().keyboard.press('Tab');
+}
       if (data.addressLocation) {
-        await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
+        try {
+          await this.addressDropdown.waitFor({ state: 'visible', timeout: 2000 });
+          await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
+        } catch {
+          console.log(' [INFO:] Address Location dropdown did not appear after NPI lookup.');
+        }
       }
 
       if (data.mailingCorrespondenceAddressUpdate) {
         await this.clickDynamicField(this.mailingCorrespondenceAddressUpdate, 'Mailing Address Update', data.mailingCorrespondenceAddressUpdate);
       }
-    }
   }
 
   async fillContactInfo(data: MemberData = {}): Promise<void> {
@@ -175,13 +180,11 @@ export class SharedFormActions {
       }
     }
 
-    if (data.memberId) {
-      let filled = await this.fillDynamicField(this.memberIdInput, 'Main Member ID', data.memberId);
-      if (!filled) {
-        filled = await this.fillDynamicField(this.validationMemberIdInput, 'Validation Variant Member ID', data.memberId);
-      }
-      if (filled) await this.container.page().keyboard.press('Tab');
-    }
+ if (data.memberId) {
+  await this.memberIdInput.clear();
+  await this.memberIdInput.pressSequentially(data.memberId, { delay: 100 });
+    await this.container.page().keyboard.press('Tab');
+}
 
     if (data.memberDOB) {
       const filled = await this.fillDynamicField(this.memberDOB, 'Date of Birth Field', data.memberDOB);
