@@ -62,7 +62,7 @@ export class SharedFormActions {
     this.emailInput = this.container.page().locator('input[type="email"], input[name*="email"]');
     this.providerNotFound = this.container.page().locator('input[name="input_20"]');
     this.memberNotFound = this.container.page().locator('input[name="input_56"]');
-    this.memberDOB = this.container.page().locator('input[name="input_67"]');    
+    this.memberDOB = this.container.page().locator('input[name="input_67"]');
     this.validationMemberIdInput = this.container.page().locator('input[name="input_14"], input[name*="member_id"]');
     this.validationDobInput = this.container.page().locator('input[name="input_15"], input[name*="dob"]');
     this.providerNameInput = this.container.page().locator('input[name="input_17"], input[name*="provider_name"]');
@@ -124,7 +124,7 @@ export class SharedFormActions {
     } catch {
       console.warn('[WARNING]: Base structural container did not render inside the timeline.');
     }
-   
+
     if (data.provider) await this.fillProviderInfo(data.provider);
     if (data.member) await this.fillContactInfo(data.member);
   }
@@ -144,23 +144,23 @@ export class SharedFormActions {
       }
     }
 
-if (data.npi) {
-  await this.npiInput.clear();
-  await this.npiInput.pressSequentially(data.npi, { delay: 100 });
-    await this.container.page().keyboard.press('Tab');
-}
-      if (data.addressLocation) {
-        try {
-          await this.addressDropdown.waitFor({ state: 'visible', timeout: 2000 });
-          await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
-        } catch {
-          console.log(' [INFO:] Address Location dropdown did not appear after NPI lookup.');
-        }
+    if (data.npi) {
+      await this.npiInput.clear();
+      await this.npiInput.pressSequentially(data.npi, { delay: 100 });
+      await this.container.page().keyboard.press('Tab');
+    }
+    if (data.addressLocation) {
+      try {
+        await this.addressDropdown.waitFor({ state: 'visible', timeout: 2000 });
+        await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
+      } catch {
+        console.log(' [INFO:] Address Location dropdown did not appear after NPI lookup.');
       }
+    }
 
-      if (data.mailingCorrespondenceAddressUpdate) {
-        await this.clickDynamicField(this.mailingCorrespondenceAddressUpdate, 'Mailing Address Update', data.mailingCorrespondenceAddressUpdate);
-      }
+    if (data.mailingCorrespondenceAddressUpdate) {
+      await this.clickDynamicField(this.mailingCorrespondenceAddressUpdate, 'Mailing Address Update', data.mailingCorrespondenceAddressUpdate);
+    }
   }
 
   async fillContactInfo(data: MemberData = {}): Promise<void> {
@@ -180,11 +180,11 @@ if (data.npi) {
       }
     }
 
- if (data.memberId) {
-  await this.memberIdInput.clear();
-  await this.memberIdInput.pressSequentially(data.memberId, { delay: 100 });
-    await this.container.page().keyboard.press('Tab');
-}
+    if (data.memberId) {
+      await this.memberIdInput.clear();
+      await this.memberIdInput.pressSequentially(data.memberId, { delay: 100 });
+      await this.container.page().keyboard.press('Tab');
+    }
 
     if (data.memberDOB) {
       const filled = await this.fillDynamicField(this.memberDOB, 'Date of Birth Field', data.memberDOB);

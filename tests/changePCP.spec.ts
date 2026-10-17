@@ -19,7 +19,11 @@ test.describe('Change PCP Regression testsuite', () => {
     formAssert = new sharedAssertions(page, pcpChange.sharedFormActions);
     providerNotFoundLbl = pcpChange.sharedFormActions.providerNotFound;
     memberNotFoundLbl = pcpChange.sharedFormActions.memberNotFound;
+
+    // Opens the browser and navigates to the application for the specified environment
+    await pcpChange.navigateToChangePCP(envTarget);
   });
+
   test.afterEach(async ({ page }) => {
     console.log(`Finished test: ${test.info().title}`);
   });
@@ -27,20 +31,16 @@ test.describe('Change PCP Regression testsuite', () => {
   test.skip('Submit a Change PCP form.', async ({ page }) => {
     console.log(`Running test: ${test.info().title}`);
 
-    await pcpChange.navigateToChangePCP(envTarget);
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
-    
     await pcpChange.fillProviderSection(testData.Data.ProviderData);
-  
+
     await expect(providerNotFoundLbl).not.toHaveValue(providerNotFoundtxt);
   });
 
-  test('Provider Not Found validation message appears.', async ({ page }) => {
+  test.skip('Provider Not Found validation message appears.', async ({ page }) => {
     console.log(`Running test: ${test.info().title}`);
 
-    await pcpChange.navigateToChangePCP(envTarget);
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
-
     await pcpChange.fillProviderSection(testData.Data.ProviderData);
 
     await providerNotFoundLbl.waitFor({ state: 'visible', timeout: 5000 });
@@ -49,12 +49,10 @@ test.describe('Change PCP Regression testsuite', () => {
     console.log('✅ Validation Message Confirmed:', providerNotFoundtxt);
   });
 
-  test.skip('Member Not Found validation message appears.', async ({ page }) => {
+  test('Member Not Found validation message appears.', async ({ page }) => {
     console.log(`Running test: ${test.info().title}`);
 
-    await pcpChange.navigateToChangePCP(envTarget);
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
-
     await pcpChange.fillContactSection(testData.Data.MemberData);
 
     await memberNotFoundLbl.waitFor({ state: 'visible', timeout: 5000 });

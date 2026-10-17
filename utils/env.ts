@@ -2,7 +2,7 @@ const ENV_DOMAINS = {
   dev: 'https://dev.nhpri.org/',
   qa: 'https://nhpri.org/',
   staging: 'https://staging.nhpri.org/',
-} as const; 
+} as const;
 
 type EnvironmentKey = keyof typeof ENV_DOMAINS;
 
@@ -13,7 +13,7 @@ export const Environment = {
     if (envKey in ENV_DOMAINS) {
       return ENV_DOMAINS[envKey];
     }
-        const validKeys = Object.keys(ENV_DOMAINS).join(', ');
+    const validKeys = Object.keys(ENV_DOMAINS).join(', ');
     throw new Error(`❌ Invalid environment requested: "${target}". Expected one of: ${validKeys}.`);
   }
 };

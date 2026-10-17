@@ -1,7 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 import { Environment } from '../utils/env';
-import * as SharedForm from '../utils/SharedFormActions';
-
+import * as SharedForm from '../utils/sharedFormActions';
 export class ChangePCP {
   private readonly page: Page;
   public readonly sharedFormActions: SharedForm.SharedFormActions;
@@ -31,8 +30,6 @@ export class ChangePCP {
   }
 
   async fillContactSection(data: SharedForm.MemberData = {}): Promise<void> {
-    await this.sharedFormActions.fillContactInfo({
-      changePCPforAntotherMember: data.changePCPforAntotherMember,
-    });
+    await this.sharedFormActions.fillContactInfo(data);
   }
 }
