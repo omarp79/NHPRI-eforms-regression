@@ -28,9 +28,8 @@ test('Scan webpage and save name attributes as POM locators', async ({ page }) =
 
     if (attributes.name && attributes.name !== '🚫 No Name') {
       const variableName = `field_${attributes.name.replace(/[^a-zA-Z0-9]/g, '_')}`;
-      // ✅ Constructs using 'this.page.locator'
-      const locatorString = `const ${variableName} = this.page.locator('${attributes.tagName}[name="${attributes.name}"]');`;
-
+      // ✅ Constructs using 'this.container.page().locator'
+      const locatorString = `const ${variableName} = this.container.page().locator('${attributes.tagName}[name="${attributes.name}"]');`;
       locatorLines.push(locatorString);
     }
   }

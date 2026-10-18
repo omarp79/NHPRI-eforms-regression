@@ -32,4 +32,9 @@ export class ChangePCP {
   async fillContactSection(data: SharedForm.MemberData = {}): Promise<void> {
     await this.sharedFormActions.fillContactInfo(data);
   }
+  async clickSubmitBtn(){
+    await this.sharedFormActions.clickActionButton(this.sharedFormActions.submitReviewbtn, 'REVIEW AND SUBMIT');
+  }
+
+  
 }

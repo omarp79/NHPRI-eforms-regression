@@ -1,6 +1,19 @@
 {
   "Data": {
-    "ProviderData": {
+    "ProviderDataActiveNPI": {
+      "npi": "1234567890",
+      "groupEntityNPI": "0987654321",
+      "addressLine1": "55 Clark Rd",
+      "addressLine2": "Suite 5",
+      "city": "Cranston",
+      "state": "RI",
+      "zip": "02910",
+      "phone": "4012228544",
+      "email": "provider@nhpri.org",
+      "mailingCorrespondenceAddressUpdate": "Yes",
+      "changePCPforAnotherMember": "Yes"
+    },
+        "ProviderDataInvalidNPI": {
       "npi": "1234567890",
       "groupEntityNPI": "0987654321",
       "addressLine1": "55 Clark Rd",
@@ -11,7 +24,20 @@
       "phone": "4012228544",
       "email": "provider@nhpri.org"
     },
-    "MemberData": {
+        "MemberDataActiveMemberId": {
+      "addressLine1": "123 Main St",
+      "addressLine2": "apt 2",
+      "city": "Providence",
+      "state": "RI",
+      "zip": "02909",
+      "phone  ": "4015552222",
+      "email": "provider@nhpri.org",
+      "memberId": "MEM998877",
+      "memberDOB": "10/12/2000", 
+      "effectiveDate": "01/01/2026"    
+
+    },
+    "MemberDataInvalidMemberId": {
       "addressLine1": "123 Main St",
       "addressLine2": "apt 2",
       "city": "Providence",

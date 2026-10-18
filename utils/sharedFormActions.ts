@@ -10,6 +10,7 @@ export interface ProviderData {
   groupEntityNPI?: string;
   mailingCorrespondenceAddressUpdate?: string | boolean;
   email?: string;
+  changePCPforAnotherMember?: string | boolean;
 }
 
 export interface MemberData {
@@ -21,15 +22,21 @@ export interface MemberData {
   planName?: string;
   dateOfService?: string;
   memberDOB?: string;
-  changePCPforAntotherMember?: string | boolean;
+  changePCPforAnotherMemberYes?: string | boolean;
+  changePCPforAnotherMemberNo?: string | boolean;
+}
+export interface submitReview {
+submitBtn?: string
 }
 
 export interface SharedFormData {
   provider?: ProviderData;
   member?: MemberData;
+  submitReviewbtn?: submitReview;
 }
 
 export class SharedFormActions {
+  public readonly submitbtn: Locator;
   private readonly container: Locator;
   public readonly npiInput: Locator;
   public readonly supplierIdInput: Locator;
@@ -47,14 +54,16 @@ export class SharedFormActions {
   public readonly providerNotFound: Locator;
   public readonly memberNotFound: Locator;
   public readonly memberDOB: Locator;
-  public readonly changePCPforAntotherMember: Locator;
+  public readonly changePCPforAnotherMemberYes: Locator;
+  public readonly changePCPforAnotherMemberNo: Locator;
   public readonly groupEntityNPIInput: Locator;
   public readonly mailingCorrespondenceAddressUpdate: Locator;
-
+  public readonly submitReviewbtn: Locator;
   constructor(container: Locator) {
     this.container = container;
 
     // Direct, target-scoped elements linked to your page layout
+    this.submitbtn = this.container.page().locator('input[name="gform_target_page_number_122"]');
     this.npiInput = this.container.page().locator('input[name="input_16"]');
     this.supplierIdInput = this.container.page().locator('input[name="input_17"]');
     this.memberIdInput = this.container.page().locator('input[name="input_24"]');
@@ -70,9 +79,12 @@ export class SharedFormActions {
     this.detailMemberNameInput = this.container.page().locator('input[name="input_22"], input[name*="member_name"], input[name="input_27"]');
     this.detailPlanNameInput = this.container.page().locator('input[name="input_23"], input[name*="plan_name"], input[name="input_30"]');
     this.detailDateOfServiceInput = this.container.page().locator('input[name="input_24"], input[name*="date_of_service"], input[name*="dos"], input[name="input_61"]');
-    this.changePCPforAntotherMember = this.container.page().locator('input[name="input_70"]');
+    this.changePCPforAnotherMemberYes = this.container.page().locator('input[name="input_70"][value="Yes"]');
+    this.changePCPforAnotherMemberNo = this.container.page().locator('input[name="input_70"][value="No"]');
     this.groupEntityNPIInput = this.container.page().locator('input[name="input_5"], input[name*="group_entity_npi"]');
     this.mailingCorrespondenceAddressUpdate = this.container.page().locator('input[name="input_1.1"], checkbox[name*="Mailing"]');
+    this.submitReviewbtn = this.container.page().locator('input[value="Review and Submit"]');
+
   }
 
   /**
@@ -154,12 +166,15 @@ export class SharedFormActions {
         await this.addressDropdown.waitFor({ state: 'visible', timeout: 2000 });
         await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
       } catch {
-        console.log(' [INFO:] Address Location dropdown did not appear after NPI lookup.');
       }
     }
 
     if (data.mailingCorrespondenceAddressUpdate) {
       await this.clickDynamicField(this.mailingCorrespondenceAddressUpdate, 'Mailing Address Update', data.mailingCorrespondenceAddressUpdate);
+    }
+    if (await this.changePCPforAnotherMemberNo.isVisible()) {
+      await this.clickDynamicField(this.changePCPforAnotherMemberNo, 'Change PCP for Another Member', data.changePCPforAnotherMember
+      );
     }
   }
 
@@ -193,9 +208,17 @@ export class SharedFormActions {
         await this.container.page().keyboard.press('Tab');
       }
     }
-
-    if (data.changePCPforAntotherMember) {
-      await this.clickDynamicField(this.changePCPforAntotherMember, 'Change PCP for Another Member', data.changePCPforAntotherMember);
-    }
   }
+  public async clickActionButton(locator: Locator, submitReviewbtn: string): Promise<boolean> {
+  try {
+    await locator.waitFor({ state: 'visible', timeout: 5000 });
+    await locator.scrollIntoViewIfNeeded();
+    await locator.click();
+    console.log(` [SUCCESS:] Clicked the "${submitReviewbtn}" action button.`);
+    return true;
+  } catch (error) {
+    console.log(` [INFO:] Action button "${submitReviewbtn}" is not visible or clickable on this view, skipping.`);
+    return false;
+  }
+}
 }
