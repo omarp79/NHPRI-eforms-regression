@@ -29,7 +29,7 @@ test.describe('Change PCP Regression testsuite', () => {
 
     await pcpChange.navigateToChangePCP(envTarget);
     
-    console.log(`\n▶️ Running test: ${info.title}`);
+    console.log(`\n▶️  Running test: ${info.title}`);
   });
 
   test.afterEach(async ({ page }, info) => {
@@ -41,7 +41,10 @@ test.describe('Change PCP Regression testsuite', () => {
 
     await pcpChange.fillProviderSection(testData.Data.ProviderDataActiveNPI);
     await pcpChange.fillContactSection(testData.Data.MemberDataInvalidMemberId);
+
+    //NEED TO FINISH COMPLETING THE FORM
     await signatureHandler.signForm();
+
     await pcpChange.clickSubmitBtn();
   });
 
