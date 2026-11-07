@@ -1,20 +1,21 @@
 import { Page } from '@playwright/test';
+import { SelfHealingLocator } from './selfHealingLocator';
 
 export class SignatureHandler {
   private readonly page: Page;
+  private readonly selfHealing: SelfHealingLocator;
 
   constructor(page: Page) {
     this.page = page;
+    this.selfHealing = new SelfHealingLocator(page.locator('body'));
   }
 
   async signForm(): Promise<void> {
-    // 1. Locate the target canvas using common signature element selectors
-    const canvasLocator = this.page.locator([
+    const canvasLocator = await this.selfHealing.require(this.page.locator([
       'canvas.signature-pad',
       'canvas[id*="signature"]',
-      '.gfield_signature_container canvas',
-      'canvas'
-    ].join(', ')).first();
+      '.gfield_signature_container canvas'
+    ].join(', ')), 'Signature', undefined, { description: 'Signature canvas' });
 
     await canvasLocator.scrollIntoViewIfNeeded();
     await canvasLocator.waitFor({ state: 'visible', timeout: 5000 });
@@ -39,11 +40,7 @@ export class SignatureHandler {
 
     await this.page.mouse.up();
 
-    try {
-      await canvasLocator.dispatchEvent('change', { bubbles: true });
-      await canvasLocator.blur();
-    } catch {
-      console.log(' [INFO]: Canvas state update triggered implicitly.');
-    }
+    await canvasLocator.dispatchEvent('change', { bubbles: true });
+    await canvasLocator.blur();
   }
 }

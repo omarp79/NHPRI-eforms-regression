@@ -9,7 +9,7 @@ export class ChangePCP {
 
   constructor(page: Page) {
     this.page = page;
-    this.formRoot = this.page.locator('form#pcp-change-form, .form-container-class');
+    this.formRoot = this.page.locator('form#gform_122');
     this.sharedFormActions = new SharedForm.SharedFormActions(this.formRoot);
   }
 

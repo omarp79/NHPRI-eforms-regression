@@ -7,6 +7,12 @@ export const assertionTexts = {
       description: 'Entering the NPI Number will automatically populate...',
 
     },
+      addressUpdates: {
+      // expected text is in the header:
+      header: 'Address Updates', 
+      description: 'Entering the NPI Number will automatically populate...',
+
+    },
     providerNotFoundtxt:{
       description: 'Providers found with the provided search criteria'
     },

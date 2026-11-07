@@ -5,7 +5,7 @@ import { Environment } from '../utils/env';
 test('Scan webpage and save name attributes as POM locators', async ({ page }) => {
 
   const baseURL = Environment.setEnv('QA');
-  const targetURL = `${baseURL}providers/pcp-change`;
+  const targetURL = `${baseURL}providers/address-updates`;
 
   await page.goto(targetURL);
   console.log(`Scanning webpage: ${targetURL}`);

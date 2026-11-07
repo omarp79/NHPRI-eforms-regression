@@ -1,4 +1,5 @@
 import { Locator } from '@playwright/test';
+import { SelfHealingLocator } from './selfHealingLocator';
 
 const todaysDate = new Date().toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
@@ -9,6 +10,7 @@ export interface ProviderData {
   addressLocation?: string;
   groupEntityNPI?: string;
   mailingCorrespondenceAddressUpdate?: string | boolean;
+  officeContactEmailAddress?: string;
   email?: string;
   changePCPforAnotherMember?: string | boolean;
 }
@@ -38,10 +40,12 @@ export interface SharedFormData {
 export class SharedFormActions {
   public readonly submitbtn: Locator;
   private readonly container: Locator;
+  private readonly selfHealing: SelfHealingLocator;
   public readonly npiInput: Locator;
   public readonly supplierIdInput: Locator;
   public readonly memberIdInput: Locator;
   public readonly commercialMemberIdInput: Locator;
+  public readonly officeContactEmailAddressInput: Locator;
   public readonly emailInput: Locator;
 
   public readonly validationMemberIdInput: Locator;
@@ -61,14 +65,19 @@ export class SharedFormActions {
   public readonly submitReviewbtn: Locator;
   constructor(container: Locator) {
     this.container = container;
+    this.selfHealing = new SelfHealingLocator(container);
 
-    // Direct, target-scoped elements linked to your page layout
+    const staleForSelfHealingTest = (selector: string): Locator =>
+      this.container.page().locator(
+        `:is(${selector})[data-self-healing-test="_ChangedName_toTestSelfHealing"]`
+      );
+
     this.submitbtn = this.container.page().locator('input[name="gform_target_page_number_122"]');
     this.npiInput = this.container.page().locator('input[name="input_16"]');
     this.supplierIdInput = this.container.page().locator('input[name="input_17"]');
     this.memberIdInput = this.container.page().locator('input[name="input_24"]');
     this.commercialMemberIdInput = this.container.page().locator('input[name="input_19"]');
-    this.emailInput = this.container.page().locator('input[type="email"], input[name*="email"]');
+    this.emailInput = this.container.page().locator('input[name="input_60"]');
     this.providerNotFound = this.container.page().locator('input[name="input_20"]');
     this.memberNotFound = this.container.page().locator('input[name="input_56"]');
     this.memberDOB = this.container.page().locator('input[name="input_67"]');
@@ -81,52 +90,60 @@ export class SharedFormActions {
     this.detailDateOfServiceInput = this.container.page().locator('input[name="input_24"], input[name*="date_of_service"], input[name*="dos"], input[name="input_61"]');
     this.changePCPforAnotherMemberYes = this.container.page().locator('input[name="input_70"][value="Yes"]');
     this.changePCPforAnotherMemberNo = this.container.page().locator('input[name="input_70"][value="No"]');
-    this.groupEntityNPIInput = this.container.page().locator('input[name="input_5"], input[name*="group_entity_npi"]');
+    this.groupEntityNPIInput = this.container.page().locator('input[name="input_5"], input[name*="group_entity"]');
     this.mailingCorrespondenceAddressUpdate = this.container.page().locator('input[name="input_1.1"], checkbox[name*="Mailing"]');
     this.submitReviewbtn = this.container.page().locator('input[value="Review and Submit"]');
+    this.officeContactEmailAddressInput = this.container.page().locator('input[name="input_6"], input[name*="office_contact_email"]');
 
   }
 
   /**
-   * Universal Field Driver: Returns boolean success.
-   * Grace timeout shortened to 500ms to maintain lightning-fast test execution when skipping fields.
+   * Optional fields may be absent from a form layout; ambiguous matches still fail explicitly.
    */
-  private async fillDynamicField(locator: Locator, fieldName: string, value?: string): Promise<boolean> {
+  private async fillDynamicField(
+    locator: Locator,
+    fieldName: string,
+    value?: string,
+    role: 'textbox' | 'combobox' = 'textbox'
+  ): Promise<boolean> {
     if (!value) return false;
-    try {
-      await locator.waitFor({ state: 'visible', timeout: 500 });
-      await locator.scrollIntoViewIfNeeded();
-      await locator.fill(value);
-      return true;
-    } catch (error) {
+    const target = await this.selfHealing.find(locator, fieldName, role);
+    if (!target) {
       console.log(` [INFO:] Field "${fieldName}" is absent on this specific form layout view, skipping.`);
       return false;
     }
+    await target.scrollIntoViewIfNeeded();
+    await target.fill(value);
+    return true;
   }
 
-  private async clickDynamicField(locator: Locator, fieldName: string, value?: string | boolean): Promise<boolean> {
+  private async clickDynamicField(
+    locator: Locator,
+    fieldName: string,
+    value?: string | boolean,
+    accessibleName: string = fieldName,
+    role: 'checkbox' | 'radio' = 'checkbox'
+  ): Promise<boolean> {
     if (!value) return false;
-    try {
-      await locator.waitFor({ state: 'visible', timeout: 500 });
-      await locator.scrollIntoViewIfNeeded();
-      await locator.check({ force: true });
-      return true;
-    } catch (error) {
+    const target = await this.selfHealing.find(locator, accessibleName, role, { description: fieldName });
+    if (!target) {
       console.log(` [INFO:] Radio button/checkbox "${fieldName}" is absent on this form view, skipping.`);
       return false;
     }
+    await target.scrollIntoViewIfNeeded();
+    await target.check({ force: true });
+    return true;
   }
 
   private async selectDynamicDropdown(locator: Locator, fieldName: string, value?: string): Promise<boolean> {
     if (!value) return false;
-    try {
-      await locator.waitFor({ state: 'visible', timeout: 500 });
-      await locator.selectOption({ label: value });
-      return true;
-    } catch (error) {
+    const target = await this.selfHealing.find(locator, fieldName, 'combobox');
+    if (!target) {
       console.log(` [INFO:] Dropdown "${fieldName}" is absent or missing target option, skipping.`);
       return false;
     }
+    await target.selectOption({ label: value });
+    return true;
   }
 
   async fillForm(data?: SharedFormData): Promise<void> {
@@ -146,7 +163,12 @@ export class SharedFormActions {
     const fields = [
       { value: data.supplierId, locator: this.supplierIdInput, label: 'Supplier ID' },
       { value: data.providerName, locator: this.providerNameInput, label: 'Provider Name' },
-      { value: data.groupEntityNPI, locator: this.groupEntityNPIInput, label: 'Group Entity NPI' },
+      { value: data.groupEntityNPI, locator: this.groupEntityNPIInput, label: 'Group/Entity NPI' },
+      {
+        value: data.officeContactEmailAddress,
+        locator: this.officeContactEmailAddressInput,
+        label: 'Office Contact Email Address'
+      },
       { value: data.email, locator: this.emailInput, label: 'Email' }
     ];
 
@@ -155,25 +177,35 @@ export class SharedFormActions {
         await this.fillDynamicField(field.locator, field.label, field.value);
       }
     }
-
     if (data.npi) {
-      await this.npiInput.clear();
-      await this.npiInput.pressSequentially(data.npi, { delay: 100 });
+      const npiInput = await this.selfHealing.require(
+        this.npiInput,
+        'NPI Number',
+        'textbox',
+        { description: 'NPI' }
+      );
+      await npiInput.clear();
+      await npiInput.pressSequentially(data.npi, { delay: 100 });
       await this.container.page().keyboard.press('Tab');
     }
     if (data.addressLocation) {
-      try {
-        await this.addressDropdown.waitFor({ state: 'visible', timeout: 2000 });
-        await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
-      } catch {
-      }
+      await this.selectDynamicDropdown(this.addressDropdown, 'Address Location', data.addressLocation);
     }
 
     if (data.mailingCorrespondenceAddressUpdate) {
-      await this.clickDynamicField(this.mailingCorrespondenceAddressUpdate, 'Mailing Address Update', data.mailingCorrespondenceAddressUpdate);
+      await this.clickDynamicField(
+        this.mailingCorrespondenceAddressUpdate,
+        'Mailing Address Update',
+        data.mailingCorrespondenceAddressUpdate
+      );
     }
-    if (await this.changePCPforAnotherMemberNo.isVisible()) {
-      await this.clickDynamicField(this.changePCPforAnotherMemberNo, 'Change PCP for Another Member', data.changePCPforAnotherMember
+    if (data.changePCPforAnotherMember) {
+      await this.clickDynamicField(
+        this.changePCPforAnotherMemberNo,
+        'Change PCP for Another Member',
+        data.changePCPforAnotherMember,
+        'No',
+        'radio'
       );
     }
   }
@@ -183,7 +215,7 @@ export class SharedFormActions {
     const standardFields = [
       { value: data.email, locator: this.emailInput, label: 'Email' },
       { value: data.commercialMemberId, locator: this.commercialMemberIdInput, label: 'Commercial Member ID' },
-      { value: data.dob, locator: this.validationDobInput, label: 'Validation DOB' },
+      { value: data.dob, locator: this.validationDobInput, label: 'Date of Birth' },
       { value: data.memberName, locator: this.detailMemberNameInput, label: 'Detail Member Name' },
       { value: data.planName, locator: this.detailPlanNameInput, label: 'Plan Name' },
       { value: data.dateOfService, locator: this.detailDateOfServiceInput, label: 'Date of Service' }
@@ -196,29 +228,56 @@ export class SharedFormActions {
     }
 
     if (data.memberId) {
-      await this.memberIdInput.clear();
-      await this.memberIdInput.pressSequentially(data.memberId, { delay: 100 });
+      const memberIdInput = await this.selfHealing.require(
+        this.memberIdInput,
+        'Member ID',
+        'textbox'
+      );
+      await memberIdInput.clear();
+      await memberIdInput.pressSequentially(data.memberId, { delay: 100 });
       await this.container.page().keyboard.press('Tab');
     }
 
     if (data.memberDOB) {
-      const filled = await this.fillDynamicField(this.memberDOB, 'Date of Birth Field', data.memberDOB);
-      if (filled) {
-        try { await this.memberDOB.click(); } catch { }
+      const memberDOB = await this.selfHealing.find(
+        this.memberDOB,
+        'Member DOB',
+        'textbox',
+        { description: 'Date of Birth' }
+      );
+      if (memberDOB) {
+        await memberDOB.fill(data.memberDOB);
+        await memberDOB.click();
         await this.container.page().keyboard.press('Tab');
+      } else {
+        console.log(' [INFO:] Field "Date of Birth" is absent on this specific form layout view, skipping.');
       }
+    }
+
+    if (data.changePCPforAnotherMemberYes) {
+      await this.clickDynamicField(
+        this.changePCPforAnotherMemberYes,
+        'Change PCP for Another Member',
+        data.changePCPforAnotherMemberYes,
+        'Yes',
+        'radio'
+      );
     }
   }
   public async clickActionButton(locator: Locator, submitReviewbtn: string): Promise<boolean> {
-  try {
-    await locator.waitFor({ state: 'visible', timeout: 5000 });
-    await locator.scrollIntoViewIfNeeded();
-    await locator.click();
+    const target = await this.selfHealing.find(
+      locator,
+      'Review and Submit',
+      'button',
+      { description: submitReviewbtn }
+    );
+    if (!target) {
+      console.log(` [INFO:] Action button "${submitReviewbtn}" is not visible on this view, skipping.`);
+      return false;
+    }
+    await target.scrollIntoViewIfNeeded();
+    await target.click();
     console.log(` [SUCCESS:] Clicked the "${submitReviewbtn}" action button.`);
     return true;
-  } catch (error) {
-    console.log(` [INFO:] Action button "${submitReviewbtn}" is not visible or clickable on this view, skipping.`);
-    return false;
   }
-}
 }

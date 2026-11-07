@@ -1,4 +1,4 @@
-import { expect, test, type Locator } from '@playwright/test';
+import { test } from '@playwright/test';
 
 import { ChangePCP } from '../pages/changePCP';
 import testData from '../testdata/testdata.json';
@@ -17,16 +17,10 @@ test.describe('Change PCP Regression testsuite', () => {
   let pcpChange: ChangePCP;
   let signatureHandler: SignatureHandler;
   let formAssert: sharedAssertions<ChangePCP['sharedFormActions']>;
-  let providerNotFoundLbl: Locator;
-  let memberNotFoundLbl: Locator;
-
   test.beforeEach(async ({ page }, info) => {
     pcpChange = new ChangePCP(page);
     signatureHandler = new SignatureHandler(page);
     formAssert = new sharedAssertions(page, pcpChange.sharedFormActions);
-    providerNotFoundLbl = pcpChange.sharedFormActions.providerNotFound;
-    memberNotFoundLbl = pcpChange.sharedFormActions.memberNotFound;
-
     await pcpChange.navigateToChangePCP(envTarget);
     
     console.log(`\n▶️  Running test: ${info.title}`);
@@ -53,7 +47,7 @@ test.describe('Change PCP Regression testsuite', () => {
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
 
     await pcpChange.fillProviderSection(testData.Data.ProviderDataInvalidNPI);
-    await providerNotFoundLbl.waitFor({ state: 'visible', timeout: 5000 });
+    await formAssert.fields.waitForVisible('providerNotFound');
 
     await formAssert.fields.toHaveValue('providerNotFound', providerNotFoundtxt);
     console.log('✅ Validation Message Confirmed:', providerNotFoundtxt);
@@ -64,7 +58,7 @@ test.describe('Change PCP Regression testsuite', () => {
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
 
     await pcpChange.fillContactSection(testData.Data.MemberDataInvalidMemberId);
-    await memberNotFoundLbl.waitFor({ state: 'visible', timeout: 5000 });
+    await formAssert.fields.waitForVisible('memberNotFound');
 
     await formAssert.fields.toHaveValue('memberNotFound', memberNotFoundtxt);
     console.log('✅ Validation Message Confirmed:', memberNotFoundtxt);

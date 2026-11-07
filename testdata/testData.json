@@ -8,8 +8,9 @@
       "city": "Cranston",
       "state": "RI",
       "zip": "02910",
-      "phone": "4012228544",
+      "phone": "6174448566",
       "email": "provider@nhpri.org",
+            "officeContactEmailAddress": "provider@nhpri.org",
       "mailingCorrespondenceAddressUpdate": "Yes",
       "changePCPforAnotherMember": "Yes"
     },
@@ -22,7 +23,8 @@
       "state": "RI",
       "zip": "02910",
       "phone": "4012228544",
-      "email": "provider@nhpri.org"
+      "email": "provider@nhpri.org",
+      "officeContactEmailAddress": "provider@nhpri.org"
     },
         "MemberDataActiveMemberId": {
       "addressLine1": "123 Main St",
@@ -59,7 +61,18 @@
       "phone": "4012352222",
       "email": "provider@nhpri.org",
       "memberId": "521596587854"
-    }
-    
+    },
+    "AddressUpdatesData": {
+      "groupEntityNPI": "0987654321",
+      "groupEntityName": "55 Clark Rd",
+      "groupEntityTIN": "Suite 5",
+      "practiveName": "Cranston",
+      "practieNPI": "RI",
+      "officeContactName": "02910",
+      "officeContactEmailAddress": "officeemail@nhpri.org",
+      "email": "provider@nhpri.org",
+      "mailingCorrespondenceAddressUpdate": "Yes",
+      "changePCPforAnotherMember": "Yes"
+  }
   }
 }
