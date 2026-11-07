@@ -10,9 +10,10 @@
       "zip": "02910",
       "phone": "6174448566",
       "email": "provider@nhpri.org",
-            "officeContactEmailAddress": "provider@nhpri.org",
+      "officeContactEmailAddress": "provider@nhpri.org",
       "mailingCorrespondenceAddressUpdate": "Yes",
-      "changePCPforAnotherMember": "Yes"
+      "changePCPforAnotherMember": "Yes",
+      "supplierId": "SUPP123456"
     },
         "ProviderDataInvalidNPI": {
       "npi": "1234567890",

@@ -3,6 +3,7 @@ import { ChangePCP } from '../pages/changePCP';
 import { sharedAssertions } from '../pages/assertions';
 import { SelfHealingLocator } from '../utils/selfHealingLocator';
 import { SharedFormActions } from '../utils/sharedFormActions';
+import testData from '../testdata/testdata.json';
 
 test.describe('Self-healing locator', () => {
   test('recovers a stale selector using one accessible match', async ({ page }) => {
@@ -28,13 +29,14 @@ test.describe('Self-healing locator', () => {
     await page.setContent(
       '<form id="other-form"></form>' +
         '<form id="gform_122">' +
-        '<label for="npi">NPI Number<span>(Required)</span></label><input id="npi" name="input_16">' +
+        '<label for="npi">NPI Number<span>(Required)</span></label><input id="npi" name="renamed_npi">' +
         '</form>'
     );
 
     const pcpChange = new ChangePCP(page);
-    await pcpChange.fillProviderSection({ npi: '1234567890' });
-    await expect(page.locator('#npi')).toHaveValue('1234567890');
+    const providerData = testData.Data.ProviderDataActiveNPI;
+    await pcpChange.fillProviderSection(providerData);
+    await expect(page.locator('#npi')).toHaveValue(providerData.npi);
   });
 
   test('recovers other fields when labels include required text', async ({ page }) => {
@@ -44,9 +46,10 @@ test.describe('Self-healing locator', () => {
     );
 
     const formActions = new SharedFormActions(page.locator('form'));
-    await formActions.fillProviderInfo({ supplierId: 'SUP-123' });
+    const supplierId = testData.Data.ProviderDataActiveNPI.supplierId;
+    await formActions.fillProviderInfo({ supplierId });
 
-    await expect(page.locator('#supplier')).toHaveValue('SUP-123');
+    await expect(page.locator('#supplier')).toHaveValue(supplierId);
   });
 
   test('prefers the unique semantic target over a stale selector that matches the wrong field', async ({
