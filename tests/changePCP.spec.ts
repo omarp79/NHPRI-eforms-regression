@@ -17,6 +17,7 @@ test.describe('Change PCP Regression testsuite', () => {
   let pcpChange: ChangePCP;
   let signatureHandler: SignatureHandler;
   let formAssert: sharedAssertions<ChangePCP['sharedFormActions']>;
+  
   test.beforeEach(async ({ page }, info) => {
     pcpChange = new ChangePCP(page);
     signatureHandler = new SignatureHandler(page);
@@ -37,7 +38,7 @@ test.describe('Change PCP Regression testsuite', () => {
     await pcpChange.fillProviderSection(testData.Data.ProviderDataActiveNPI);
     await pcpChange.fillContactSection(testData.Data.MemberDataInvalidMemberId);
 
-    //NEED TO FINISH COMPLETING THE FORM
+    //This test is not completed. Still have to add test data to complete the form.
     await signatureHandler.signForm();
 
     await pcpChange.clickSubmitBtn();
@@ -47,13 +48,13 @@ test.describe('Change PCP Regression testsuite', () => {
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
 
     await pcpChange.fillProviderSection(testData.Data.ProviderDataInvalidNPI);
+
     await formAssert.fields.waitForVisible('providerNotFound');
     await formAssert.fields.toHaveValue('providerNotFound', providerNotFoundtxt);
     console.log('Validation Message Confirmed:', providerNotFoundtxt);
   });
 
   test('Member Not Found validation message appears.', async ({ page }) => {
-    
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
 
     await pcpChange.fillProviderSection(testData.Data.ProviderDataInvalidNPI);

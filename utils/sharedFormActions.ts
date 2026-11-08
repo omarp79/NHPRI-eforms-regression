@@ -97,9 +97,6 @@ export class SharedFormActions {
 
   }
 
-  /**
-   * Optional fields may be absent from a form layout; ambiguous matches still fail explicitly.
-   */
   private async fillDynamicField(
     locator: Locator,
     fieldName: string,
@@ -148,13 +145,13 @@ export class SharedFormActions {
   }
 
   async fillProviderInfo(data: ProviderData = {}): Promise<void> {
-    // 1. Loop through baseline, predictable provider data strings
     const fields: Array<{
       value?: string;
       locator: Locator;
       label: string;
       exactMatchOnly?: boolean;
     }> = [
+      //this array is used for simple text input fields.
       { value: data.supplierId, locator: this.supplierIdInput, label: 'Supplier ID' },
       { value: data.providerName, locator: this.providerNameInput, label: 'Provider Name' },
       { value: data.groupEntityNPI, locator: this.groupEntityNPIInput, label: 'Group/Entity NPI' },
@@ -163,15 +160,13 @@ export class SharedFormActions {
     ];
 
     for (const field of fields) {
-      if (field.value !== undefined && field.value !== null) {
-        await this.fillDynamicField(
-          field.locator,
-          field.label,
-          field.value,
-          'textbox',
-          field.exactMatchOnly
-        );
-      }
+      await this.fillDynamicField(
+        field.locator,
+        field.label,
+        field.value,
+        'textbox',
+        field.exactMatchOnly
+      );
     }
     if (data.npi) {
       const npiInput = await this.selfHealing.require(
@@ -223,15 +218,13 @@ export class SharedFormActions {
     ];
 
     for (const field of standardFields) {
-      if (field.value !== undefined && field.value !== null) {
-        await this.fillDynamicField(
-          field.locator,
-          field.label,
-          field.value,
-          'textbox',
-          field.exactMatchOnly
-        );
-      }
+      await this.fillDynamicField(
+        field.locator,
+        field.label,
+        field.value,
+        'textbox',
+        field.exactMatchOnly
+      );
     }
 
     if (data.memberId) {
