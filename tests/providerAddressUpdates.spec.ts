@@ -28,11 +28,11 @@ test.describe('Provider Address Updates Regression testsuite', () => {
 
     await addressUpdates.navigateToProviderAddressUpdates(envTarget);
 
-    console.log(`\n▶️  Running test: ${info.title}`);
+    console.log(`\nRunning test: ${info.title}`);
   });
 
   test.afterEach(async ({}, info) => {
-    console.log(`🏁 Finished test: ${info.title}\n`);
+    console.log(`Finished test: ${info.title}\n`);
   });
 
   test('Successfully Submit a Provider Address Updates form.', async ({ page }) => {

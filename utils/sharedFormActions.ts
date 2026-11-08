@@ -77,7 +77,7 @@ export class SharedFormActions {
     this.supplierIdInput = this.container.page().locator('input[name="input_17"]');
     this.memberIdInput = this.container.page().locator('input[name="input_24"]');
     this.commercialMemberIdInput = this.container.page().locator('input[name="input_19"]');
-    this.emailInput = this.container.page().locator('input[name="input_60"]');
+    this.emailInput = this.container.page().locator('input[name="input_60X"]');
     this.providerNotFound = this.container.page().locator('input[name="input_20"]');
     this.memberNotFound = this.container.page().locator('input[name="input_56"]');
     this.memberDOB = this.container.page().locator('input[name="input_67"]');
@@ -104,10 +104,11 @@ export class SharedFormActions {
     locator: Locator,
     fieldName: string,
     value?: string,
-    role: 'textbox' | 'combobox' = 'textbox'
+    role: 'textbox' | 'combobox' = 'textbox',
+    exactMatchOnly = false
   ): Promise<boolean> {
     if (!value) return false;
-    const target = await this.selfHealing.find(locator, fieldName, role);
+    const target = await this.selfHealing.find(locator, fieldName, role, { exactMatchOnly });
     if (!target) {
       console.log(` [INFO:] Field "${fieldName}" is absent on this specific form layout view, skipping.`);
       return false;
@@ -160,7 +161,12 @@ export class SharedFormActions {
 
   async fillProviderInfo(data: ProviderData = {}): Promise<void> {
     // 1. Loop through baseline, predictable provider data strings
-    const fields = [
+    const fields: Array<{
+      value?: string;
+      locator: Locator;
+      label: string;
+      exactMatchOnly?: boolean;
+    }> = [
       { value: data.supplierId, locator: this.supplierIdInput, label: 'Supplier ID' },
       { value: data.providerName, locator: this.providerNameInput, label: 'Provider Name' },
       { value: data.groupEntityNPI, locator: this.groupEntityNPIInput, label: 'Group/Entity NPI' },
@@ -169,12 +175,23 @@ export class SharedFormActions {
         locator: this.officeContactEmailAddressInput,
         label: 'Office Contact Email Address'
       },
-      { value: data.email, locator: this.emailInput, label: 'Email' }
+      {
+        value: data.email,
+        locator: this.emailInput,
+        label: 'Email',
+        exactMatchOnly: true
+      }
     ];
 
     for (const field of fields) {
       if (field.value !== undefined && field.value !== null) {
-        await this.fillDynamicField(field.locator, field.label, field.value);
+        await this.fillDynamicField(
+          field.locator,
+          field.label,
+          field.value,
+          'textbox',
+          field.exactMatchOnly
+        );
       }
     }
     if (data.npi) {

@@ -23,11 +23,11 @@ test.describe('Change PCP Regression testsuite', () => {
     formAssert = new sharedAssertions(page, pcpChange.sharedFormActions);
     await pcpChange.navigateToChangePCP(envTarget);
     
-    console.log(`\n▶️  Running test: ${info.title}`);
+    console.log(`\nRunning test: ${info.title}`);
   });
 
   test.afterEach(async ({ page }, info) => {
-    console.log(`🏁 Finished test: ${info.title}\n`);
+    console.log(`Finished test: ${info.title}\n`);
     
   });
 
@@ -48,19 +48,21 @@ test.describe('Change PCP Regression testsuite', () => {
 
     await pcpChange.fillProviderSection(testData.Data.ProviderDataInvalidNPI);
     await formAssert.fields.waitForVisible('providerNotFound');
-
     await formAssert.fields.toHaveValue('providerNotFound', providerNotFoundtxt);
-    console.log('✅ Validation Message Confirmed:', providerNotFoundtxt);
+    
+    console.log('Validation Message Confirmed:', providerNotFoundtxt);
   });
 
   test('Member Not Found validation message appears.', async ({ page }) => {
     
     await formAssert.ui.toHaveHeader(assertionTexts.pages.pcpChange.header);
 
+    await pcpChange.fillProviderSection(testData.Data.ProviderDataInvalidNPI);
     await pcpChange.fillContactSection(testData.Data.MemberDataInvalidMemberId);
-    await formAssert.fields.waitForVisible('memberNotFound');
 
+    await formAssert.fields.waitForVisible('memberNotFound');
     await formAssert.fields.toHaveValue('memberNotFound', memberNotFoundtxt);
-    console.log('✅ Validation Message Confirmed:', memberNotFoundtxt);
+
+    console.log('Validation Message Confirmed:', memberNotFoundtxt);
   });
 });
