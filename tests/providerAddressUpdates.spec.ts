@@ -21,18 +21,18 @@ test.describe('Provider Address Updates Regression testsuite', () => {
 
   test.beforeEach(async ({ page }, info) => {
     addressUpdates = new ProviderAddressUpdates(page);
-    signatureHandler = new SignatureHandler(page);
+    signatureHandler = new SignatureHandler(page)
     formAssert = new sharedAssertions(page, addressUpdates.sharedFormActions);
     providerNotFoundLabel = addressUpdates.sharedFormActions.providerNotFound;
     memberNotFoundLabel = addressUpdates.sharedFormActions.memberNotFound;
 
     await addressUpdates.navigateToProviderAddressUpdates(envTarget);
 
-    console.log(`\nRunning test: ${info.title}`);
+    console.log(`\n  Running test: ${info.title}`);
   });
 
   test.afterEach(async ({}, info) => {
-    console.log(`Finished test: ${info.title}\n`);
+    console.log(` Finished test: ${info.title}\n`);
   });
 
   test('Successfully Submit a Provider Address Updates form.', async ({ page }) => {

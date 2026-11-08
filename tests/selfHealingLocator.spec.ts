@@ -142,7 +142,7 @@ test.describe("Self-healing form actions", () => {
       <form>
         <label for="office-email">Office Contact Email Address</label>
         <input id="office-email" name="input_52" type="email">
-        <label for="email">General Email</label>
+        <label for="email">Email</label>
         <input id="email" name="input_60" type="email">
       </form>
     `);

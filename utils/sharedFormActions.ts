@@ -147,18 +147,6 @@ export class SharedFormActions {
     return true;
   }
 
-  async fillForm(data?: SharedFormData): Promise<void> {
-    if (!data) return;
-    try {
-      await this.container.waitFor({ state: 'attached', timeout: 4000 });
-    } catch {
-      console.warn('[WARNING]: Base structural container did not render inside the timeline.');
-    }
-
-    if (data.provider) await this.fillProviderInfo(data.provider);
-    if (data.member) await this.fillContactInfo(data.member);
-  }
-
   async fillProviderInfo(data: ProviderData = {}): Promise<void> {
     // 1. Loop through baseline, predictable provider data strings
     const fields: Array<{
@@ -170,17 +158,8 @@ export class SharedFormActions {
       { value: data.supplierId, locator: this.supplierIdInput, label: 'Supplier ID' },
       { value: data.providerName, locator: this.providerNameInput, label: 'Provider Name' },
       { value: data.groupEntityNPI, locator: this.groupEntityNPIInput, label: 'Group/Entity NPI' },
-      {
-        value: data.officeContactEmailAddress,
-        locator: this.officeContactEmailAddressInput,
-        label: 'Office Contact Email Address'
-      },
-      {
-        value: data.email,
-        locator: this.emailInput,
-        label: 'Email',
-        exactMatchOnly: true
-      }
+      {value: data.officeContactEmailAddress, locator: this.officeContactEmailAddressInput, label: 'Office Contact Email Address'},
+      {value: data.email, locator: this.emailInput, label: 'Email', exactMatchOnly: true}
     ];
 
     for (const field of fields) {
@@ -229,8 +208,13 @@ export class SharedFormActions {
 
   async fillContactInfo(data: MemberData = {}): Promise<void> {
     // 1. Loop through all standard text blocks first
-    const standardFields = [
-      { value: data.email, locator: this.emailInput, label: 'Email' },
+    const standardFields: Array<{
+      value?: string;
+      locator: Locator;
+      label: string;
+      exactMatchOnly?: boolean;
+    }> = [
+      { value: data.email, locator: this.emailInput, label: 'Email', exactMatchOnly: true },
       { value: data.commercialMemberId, locator: this.commercialMemberIdInput, label: 'Commercial Member ID' },
       { value: data.dob, locator: this.validationDobInput, label: 'Date of Birth' },
       { value: data.memberName, locator: this.detailMemberNameInput, label: 'Detail Member Name' },
@@ -239,8 +223,14 @@ export class SharedFormActions {
     ];
 
     for (const field of standardFields) {
-      if (field.value) {
-        await this.fillDynamicField(field.locator, field.label, field.value);
+      if (field.value !== undefined && field.value !== null) {
+        await this.fillDynamicField(
+          field.locator,
+          field.label,
+          field.value,
+          'textbox',
+          field.exactMatchOnly
+        );
       }
     }
 
